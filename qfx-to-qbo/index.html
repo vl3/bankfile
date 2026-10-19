@@ -1,0 +1,156 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>QFX to QBO Converter: Quicken Files into QuickBooks | Bankfile</title>
+<meta name="description" content="Convert Quicken QFX files to QuickBooks QBO (Web Connect). Keeps dates, payees, amounts and check numbers. Free for 25 transactions; nothing is uploaded.">
+<link rel="canonical" href="https://vl3.github.io/bankfile/qfx-to-qbo/">
+<meta property="og:title" content="QFX to QBO Converter: Quicken Files into QuickBooks | Bankfile">
+<meta property="og:description" content="Convert Quicken QFX files to QuickBooks QBO (Web Connect). Keeps dates, payees, amounts and check numbers. Free for 25 transactions; nothing is uploaded.">
+<meta property="og:url" content="https://vl3.github.io/bankfile/qfx-to-qbo/">
+<meta property="og:type" content="website">
+<meta property="og:image" content="https://vl3.github.io/bankfile/og.png">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%2313211b'/%3E%3Cpath d='M9 11h14M9 16h14M9 21h9' stroke='%2378d6a5' stroke-width='2.4' stroke-linecap='round'/%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<link href="../styles.css" rel="stylesheet">
+<script type="application/ld+json">[{"@context":"https://schema.org","@type":"SoftwareApplication","name":"Bankfile","url":"https://vl3.github.io/bankfile/","applicationCategory":"FinanceApplication","operatingSystem":"Any (web browser)","description":"Convert Quicken QFX files to QuickBooks QBO (Web Connect). Keeps dates, payees, amounts and check numbers. Free for 25 transactions; nothing is uploaded.","offers":[{"@type":"Offer","price":"0","priceCurrency":"USD","name":"Free"},{"@type":"Offer","price":"19","priceCurrency":"USD","name":"Pro"}]},{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Can I just rename .qfx to .qbo?","acceptedAnswer":{"@type":"Answer","text":"Sometimes. It works only when the bank ID inside the file is one QuickBooks accepts for Web Connect. When renaming fails, converting rewrites the header for you and keeps the transactions as they were."}},{"@type":"Question","name":"Does it keep the original transaction IDs?","acceptedAnswer":{"@type":"Answer","text":"Yes. The FITID from your bank’s file is kept, so QuickBooks matches transactions it has already seen and skips duplicates."}},{"@type":"Question","name":"Is my bank statement uploaded anywhere?","acceptedAnswer":{"@type":"Answer","text":"No. Bankfile reads and converts the file inside your browser, with the code on this page. There is no server that receives it, no account and no tracking script. Open your browser’s network panel while you convert and you’ll see the file never leaves your computer."}},{"@type":"Question","name":"What does the free version include?","acceptedAnswer":{"@type":"Answer","text":"Every format and every feature for the first 25 transactions of each file. That’s enough to test an import before you pay."}},{"@type":"Question","name":"What do I get with Pro?","acceptedAnswer":{"@type":"Answer","text":"Every transaction in every file, in every format, on all your devices, for $19 once. No subscription. If it doesn’t work for your files, reply to the Gumroad receipt within 14 days for a full refund."}},{"@type":"Question","name":"Which banks work?","acceptedAnswer":{"@type":"Answer","text":"Any bank that gives you a CSV, Excel, QFX, OFX, QIF or text-based PDF statement. Column layouts, date formats and number formats are detected for you, and you can correct them before downloading."}}]}]</script>
+</head>
+<body data-in="qfx" data-out="qbo">
+<header class="top">
+  <a class="brand" href="../">Bankfile</a>
+  <nav><a href="#converters">Converters</a><a href="#pricing">Pricing</a><a href="#faq">FAQ</a></nav>
+</header>
+
+<main>
+<section class="hero">
+  <h1>QFX to QBO converter</h1>
+  <p class="lede">Bring a Quicken (.qfx) download into QuickBooks as a Web Connect (.qbo) file, with every date, payee, amount and check number intact.</p>
+</section>
+
+<section class="tool" id="tool" aria-label="Converter">
+  <div class="drop" id="drop" tabindex="0" role="button" aria-label="Choose a QFX file to convert">
+    <input type="file" id="file" accept=".csv,.txt,.tsv,.xlsx,.xls,.ods,.pdf,.qfx,.ofx,.qbo,.qif" hidden>
+    <div class="drop-hit"><svg viewBox="0 0 24 24" width="28" height="28" aria-hidden="true"><path d="M12 16V4m0 0-4.5 4.5M12 4l4.5 4.5M4 15v3a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-3" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      <p class="drop-title">Drop a QFX file here</p>
+    </div>
+    <p class="drop-sub">PDF, CSV, Excel, QFX, OFX, QBO or QIF &middot; <button type="button" class="link" id="pick">choose a file</button> &middot; <button type="button" class="link" id="sample">try a sample</button></p>
+    <p class="private"><svg viewBox="0 0 24 24" width="16" height="16" aria-hidden="true"><rect x="5" y="10.5" width="14" height="10" rx="2" fill="none" stroke="currentColor" stroke-width="1.8"/><path d="M8 10.5V8a4 4 0 0 1 8 0v2.5" fill="none" stroke="currentColor" stroke-width="1.8"/></svg> Converted on your computer. Nothing is uploaded.</p>
+    <p class="busy" id="busy" role="status" hidden></p>
+    <p class="error" id="error" role="alert" hidden></p>
+  </div>
+
+  <div class="work" id="work" hidden>
+    <div class="work-head">
+      <p class="file"><b id="fileName"></b></p>
+      <button type="button" class="link" id="reset">Convert another file</button>
+    </div>
+    <p class="notice" id="notice" role="status" hidden></p>
+    <div class="mapping" id="mapping" hidden></div>
+    <div class="work-grid">
+      <div class="preview">
+        <p class="stats" id="stats"></p>
+        <div class="tablewrap">
+          <table>
+            <thead><tr><th>Date</th><th>Description</th><th class="a">Amount</th><th class="x"><span class="sr">Remove</span></th></tr></thead>
+            <tbody id="rows"></tbody>
+          </table>
+        </div>
+        <p class="more" id="more"></p>
+      </div>
+      <aside class="out">
+        <p class="label" id="fmtLabel">Convert to</p>
+        <div class="formats" id="formats" role="radiogroup" aria-labelledby="fmtLabel"></div>
+        <div id="acctFields">
+          <label class="field">Account type
+            <select id="kind"><option value="checking">Checking</option><option value="savings">Savings</option><option value="creditcard">Credit card</option></select>
+          </label>
+          <div class="field bank" id="bankField">
+            <label for="bank">Bank</label>
+            <input id="bank" type="text" autocomplete="off" spellcheck="false" role="combobox" aria-controls="bankList" aria-expanded="false" aria-autocomplete="list">
+            <ul id="bankList" role="listbox" hidden></ul>
+            <p class="fine">QuickBooks and Quicken check this. Pick your bank, or keep Wells Fargo, which they recognize.</p>
+          </div>
+          <label class="field" id="idField">Account number
+            <input id="acctId" type="text" inputmode="numeric" autocomplete="off" placeholder="1001">
+            <span class="fine">Any number. Use a different one for each account.</span>
+          </label>
+        </div>
+        <button type="button" class="cta" id="download">Download</button>
+        <p class="fine center" id="limitNote"></p>
+        <div class="upsell" id="upsell">
+          <p id="upsellText"></p>
+          <a class="cta alt" data-buy href="#pricing">Unlock Pro &middot; $19 once</a>
+          <details class="license">
+            <summary>Already bought? Enter your license key</summary>
+            <form class="license-form"><input type="text" placeholder="License key" aria-label="License key" autocomplete="off" spellcheck="false"><button type="submit">Unlock</button></form>
+            <p class="msg" role="status" aria-live="polite"></p>
+          </details>
+        </div>
+      </aside>
+    </div>
+  </div>
+</section>
+
+<section class="info">
+  <div class="prose"><p>QFX and QBO are both flavors of OFX, but Quicken and QuickBooks each insist on their own. A file downloaded for Quicken carries Quicken’s extension and a bank ID that QuickBooks may not accept, so the import fails or the file doesn’t show up at all.</p><p>Bankfile reads every transaction out of the QFX and writes a clean QBO with a bank ID QuickBooks recognizes, keeping the original transaction IDs so nothing imports twice.</p></div>
+  <h2>How to convert</h2>
+  <ol class="steps"><li>Drop the .qfx file above.</li><li>Pick the account type and your bank (it’s preselected when the QFX names one).</li><li>Download the .qbo file.</li><li>In <b>QuickBooks Desktop</b>: File → Utilities → Import → Web Connect Files, then pick the account and match transactions in the Bank Feeds center.</li><li>In <b>QuickBooks Online</b>: Transactions → Bank transactions → Link account ▾ → Upload from file, choose the .qbo file and map it to an account.</li></ol>
+</section>
+
+<section class="info">
+  <h2>Why Bankfile</h2>
+  <ul class="features">
+    <li><b>Private by design.</b> Your statement is read by this page in your browser. No upload, no account, no tracking scripts.</li>
+    <li><b>Reads what banks actually export.</b> Summary rows above the header, debit and credit columns, day-first dates, decimal commas, PDFs with sections and running balances.</li>
+    <li><b>Ready for QuickBooks.</b> Web Connect files with your bank’s ID from Intuit’s list of over 14,000 banks and card issuers, and stable transaction IDs so nothing imports twice.</li>
+    <li><b>Check before you download.</b> See every transaction, flip a sign or drop a line, then download.</li>
+  </ul>
+</section>
+
+<section class="info" id="pricing">
+  <h2>Pricing</h2>
+  <div class="plans">
+    <div class="plan">
+      <h3>Free</h3>
+      <p class="price">$0</p>
+      <ul><li>Every input and output format</li><li>First 25 transactions of each file</li><li>Enough to test an import</li></ul>
+    </div>
+    <div class="plan pro">
+      <h3>Pro</h3>
+      <p class="price">$19 <span>once</span></p>
+      <ul><li>Every transaction, every file</li><li>All formats, all future updates</li><li>Use it on all your devices</li><li>Full refund within 14 days</li></ul>
+      <a class="cta" data-buy href="#pricing">Get Pro &middot; $19</a>
+      <p class="fine center" data-pro hidden>Pro is unlocked on this browser. Thank you!</p>
+    </div>
+  </div>
+</section>
+
+<section class="info" id="faq">
+  <h2>Questions</h2>
+  <details><summary>Can I just rename .qfx to .qbo?</summary><p>Sometimes. It works only when the bank ID inside the file is one QuickBooks accepts for Web Connect. When renaming fails, converting rewrites the header for you and keeps the transactions as they were.</p></details>
+  <details><summary>Does it keep the original transaction IDs?</summary><p>Yes. The FITID from your bank’s file is kept, so QuickBooks matches transactions it has already seen and skips duplicates.</p></details>
+  <details><summary>Is my bank statement uploaded anywhere?</summary><p>No. Bankfile reads and converts the file inside your browser, with the code on this page. There is no server that receives it, no account and no tracking script. Open your browser’s network panel while you convert and you’ll see the file never leaves your computer.</p></details>
+  <details><summary>What does the free version include?</summary><p>Every format and every feature for the first 25 transactions of each file. That’s enough to test an import before you pay.</p></details>
+  <details><summary>What do I get with Pro?</summary><p>Every transaction in every file, in every format, on all your devices, for $19 once. No subscription. If it doesn’t work for your files, reply to the Gumroad receipt within 14 days for a full refund.</p></details>
+  <details><summary>Which banks work?</summary><p>Any bank that gives you a CSV, Excel, QFX, OFX, QIF or text-based PDF statement. Column layouts, date formats and number formats are detected for you, and you can correct them before downloading.</p></details>
+</section>
+
+<section class="info" id="converters">
+  <h2>More converters</h2>
+  <ul class="related"><li><a href="../">Bank statement converter</a></li><li><a href="../csv-to-qbo/">CSV to QBO converter</a></li><li><a href="../excel-to-qbo/">Excel to QBO converter</a></li><li><a href="../ofx-to-qbo/">OFX to QBO converter</a></li><li><a href="../qif-to-qbo/">QIF to QBO converter</a></li><li><a href="../pdf-to-qbo/">PDF to QBO converter</a></li><li><a href="../bank-statement-to-excel/">PDF bank statement to Excel</a></li><li><a href="../bank-statement-to-csv/">Bank statement to CSV converter</a></li><li><a href="../csv-to-qfx/">CSV to QFX converter for Quicken</a></li><li><a href="../csv-to-ofx/">CSV to OFX converter</a></li></ul>
+</section>
+</main>
+
+<footer class="foot">
+  <p>Bankfile is made by one person and runs entirely in your browser. QuickBooks and Quicken are trademarks of their owners; Bankfile isn’t affiliated with them.</p>
+  <p>Questions or a file that won’t convert? Reply to your receipt, or open an issue on <a href="https://github.com/vl3/bankfile">GitHub</a>.</p>
+</footer>
+
+<script src="../core.js"></script>
+<script src="../app.js"></script>
+</body>
+</html>

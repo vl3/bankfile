@@ -1,0 +1,3 @@
+User-agent: *
+Allow: /
+Sitemap: https://vl3.github.io/bankfile/sitemap.xml
