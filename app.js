@@ -1,9 +1,8 @@
 'use strict';
 
-// Filled in once the Gumroad product exists.
 const CONFIG = {
-  gumroadUrl: '',
-  productId: '',
+  gumroadUrl: 'https://gumroad.com/l/bankfile-pro',
+  productId: 'si7SivWCvB5nckoqN904pA==',
   price: '$19',
 };
 
